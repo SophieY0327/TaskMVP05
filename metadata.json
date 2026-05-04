@@ -1,0 +1,8 @@
+{
+  "name": "鹏城探园",
+  "description": "深圳幼儿园发现与口碑社区 - 帮家长选对第一所学校",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
