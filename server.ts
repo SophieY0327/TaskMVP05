@@ -22,7 +22,6 @@ async function startServer() {
       reviewCount: 128,
       coords: [22.5332, 113.9314],
       image: 'https://images.unsplash.com/photo-1595206133361-b1fe343e5e23?q=80&w=800&auto=format&fit=crop',
-      district: '南山区',
       subDistrict: '南山中心区',
       distance: '0.8km',
       description: '省级示范幼儿园，南山区历史最悠久的公办园之一。',

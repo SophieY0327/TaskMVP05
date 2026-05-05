@@ -1,40 +1,15 @@
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { useState, useEffect } from 'react';
-import { 
-  ArrowLeft, Star, MapPin, Info, 
-  MessageCircle, ShieldCheck, Heart, 
+import {
+  ArrowLeft, Star, MapPin, Info,
+  MessageCircle, ShieldCheck, Heart,
   Award, Wallet, Users, Calendar, CheckCircle2,
-  Share2, Bookmark, ExternalLink, Loader2
+  Share2, Bookmark, ExternalLink
 } from 'lucide-react';
-import { Kindergarten } from '../data';
+import { schools } from '../data';
 
 export default function SchoolDetail() {
   const { id } = useParams();
-  const [school, setSchool] = useState<Kindergarten | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch(`/api/schools/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setSchool(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch school detail:", err);
-        setLoading(false);
-      });
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="animate-spin text-trust-blue" size={48} />
-        <p className="text-trust-blue font-medium">精心筹备园所资料中...</p>
-      </div>
-    );
-  }
+  const school = schools.find(s => s.id === id) ?? null;
 
   if (!school) {
     return (
@@ -58,11 +33,7 @@ export default function SchoolDetail() {
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-6xl mx-auto px-4 py-12"
-    >
+    <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="flex items-center justify-between mb-8">
         <Link 
           to="/" 
@@ -254,8 +225,7 @@ export default function SchoolDetail() {
 
             <div className="grid gap-6">
               {school.reviews?.map((review) => (
-                <motion.div 
-                  whileHover={{ x: 5 }}
+                <div
                   key={review.id} 
                   className="p-8 bg-warm-white rounded-3xl border border-trust-blue/5 space-y-4 hover:shadow-md transition-all"
                 >
@@ -283,7 +253,7 @@ export default function SchoolDetail() {
                       </span>
                     ))}
                   </div>
-                </motion.div>
+                </div>
               ))}
 
               <button className="w-full py-4 border-2 border-dashed border-trust-blue/10 rounded-3xl text-trust-blue/40 font-bold hover:bg-trust-blue/5 hover:border-trust-blue/20 transition-all">
@@ -367,6 +337,6 @@ export default function SchoolDetail() {
           </div>
         </aside>
       </div>
-    </motion.div>
+    </div>
   );
 }

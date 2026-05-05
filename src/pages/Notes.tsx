@@ -1,52 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { Heart, BookOpen, Search, Filter, Loader2, ArrowLeft } from 'lucide-react';
-
-interface Note {
-  id: string;
-  title: string;
-  author: string;
-  avatar: string;
-  schoolName: string;
-  schoolId: string;
-  image: string;
-  likes: number;
-  tags: string[];
-}
+import { Heart, BookOpen, Search, ArrowLeft } from 'lucide-react';
+import { notes } from '../data';
 
 export default function Notes() {
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    fetch('/api/notes')
-      .then(res => res.json())
-      .then(data => {
-        setNotes(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch notes:", err);
-        setLoading(false);
-      });
-  }, []);
-
-  const filteredNotes = notes.filter(note => 
+  const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     note.schoolName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-
-  if (loading) {
-    return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="animate-spin text-trust-blue" size={48} />
-        <p className="text-trust-blue font-medium">正在加载精彩笔记...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-warm-white min-h-screen pt-12 pb-24">
@@ -62,9 +26,9 @@ export default function Notes() {
             </div>
             <div className="relative group w-full md:w-96">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-dark-gray/30 group-focus-within:text-trust-blue transition-colors" size={20} />
-              <input 
-                type="text" 
-                placeholder="搜索感兴趣的笔记或园所..." 
+              <input
+                type="text"
+                placeholder="搜索感兴趣的笔记或园所..."
                 className="w-full pl-12 pr-4 py-4 bg-white rounded-2xl border border-trust-blue/5 focus:border-trust-blue/20 outline-none transition-all shadow-sm placeholder:text-dark-gray/30 text-sm font-medium"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -85,15 +49,14 @@ export default function Notes() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredNotes.map((note) => (
               <Link to={`/school/${note.schoolId}`} key={note.id} className="block group">
-                <motion.div 
-                  whileHover={{ y: -10 }}
+                <div
                   className="bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl border border-trust-blue/5 transition-all duration-300 h-full"
                 >
                   <div className="relative aspect-[4/5] overflow-hidden">
-                    <img 
-                      src={note.image} 
-                      alt={note.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    <img
+                      src={note.image}
+                      alt={note.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                        {note.tags.map((tag, i) => (
@@ -120,7 +83,7 @@ export default function Notes() {
                       {note.likes}
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </Link>
             ))}
           </div>

@@ -20,7 +20,7 @@ export default function Navbar() {
             <Link to="/" className="text-dark-gray hover:text-trust-blue font-medium transition-colors">首页</Link>
             <Link to="/encyclopedia" className="text-dark-gray hover:text-trust-blue font-medium transition-colors">探校百科</Link>
             <Link to="/notes" className="text-dark-gray hover:text-trust-blue font-medium transition-colors">探园笔记</Link>
-            <a href="#" className="text-dark-gray hover:text-trust-blue font-medium transition-colors">关于我们</a>
+            <Link to="/about" className="text-dark-gray hover:text-trust-blue font-medium transition-colors">关于我们</Link>
           </div>
 
           <div className="flex items-center gap-4">

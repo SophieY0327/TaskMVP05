@@ -1,75 +1,57 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import { Search, ArrowLeft, ChevronDown, Lightbulb, Clipboard, Wallet, Compass } from 'lucide-react';
-import { qaCategories, QACategory, QAItem } from '../data/qa';
+import { qaCategories, type QACategory, type QAItem } from '../data/qa';
 
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+const CATEGORY_ICONS: Record<string, ReactNode> = {
   basics: <Lightbulb size={20} />,
   process: <Clipboard size={20} />,
   fees: <Wallet size={20} />,
   evaluation: <Compass size={20} />,
 };
 
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string; activeBg: string; activeText: string; icon: string }> = {
-  basics: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
-    border: 'border-blue-200',
-    activeBg: 'bg-blue-600',
-    activeText: 'text-white',
-    icon: 'text-blue-500',
-  },
-  process: {
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
-    activeBg: 'bg-amber-500',
-    activeText: 'text-white',
-    icon: 'text-amber-500',
-  },
-  fees: {
-    bg: 'bg-orange-50',
-    text: 'text-orange-700',
-    border: 'border-orange-200',
-    activeBg: 'bg-orange-500',
-    activeText: 'text-white',
-    icon: 'text-orange-500',
-  },
-  evaluation: {
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
-    activeBg: 'bg-emerald-500',
-    activeText: 'text-white',
-    icon: 'text-emerald-500',
-  },
-};
+const CATEGORY_COLORS = {
+  basics: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+  process: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+  fees: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
+  evaluation: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+} as const;
 
-interface AccordionItemProps {
+function getIconColor(id: string) {
+  if (id === 'basics') return 'text-blue-500';
+  if (id === 'process') return 'text-amber-500';
+  if (id === 'fees') return 'text-orange-500';
+  return 'text-emerald-500';
+}
+
+function getDotColor(id: string) {
+  if (id === 'basics') return 'bg-blue-500';
+  if (id === 'process') return 'bg-amber-500';
+  if (id === 'fees') return 'bg-orange-500';
+  return 'bg-emerald-500';
+}
+
+function AccordionItem({
+  item,
+  isOpen,
+  onToggle,
+  categoryId,
+}: {
   item: QAItem;
   isOpen: boolean;
   onToggle: () => void;
   categoryId: string;
-}
-
-function AccordionItem({ item, isOpen, onToggle, categoryId }: AccordionItemProps) {
-  const colors = CATEGORY_COLORS[categoryId] ?? CATEGORY_COLORS.basics;
+}) {
+  const colors = CATEGORY_COLORS[categoryId as keyof typeof CATEGORY_COLORS] ?? CATEGORY_COLORS.basics;
+  const dotColor = getDotColor(categoryId);
 
   return (
-    <div
-      className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
-        isOpen
-          ? `border-${colors.text.replace('text-', '')}/20 shadow-md shadow-${colors.text.replace('text-', '')}/10`
-          : 'border-gray-100 hover:border-gray-200'
-      }`}
-    >
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between gap-4 p-6 text-left group"
-      >
+    <div className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+      isOpen ? 'border-trust-blue/10 shadow-md' : 'border-gray-100 hover:border-gray-200'
+    }`}>
+      <button onClick={onToggle} className="w-full flex items-center justify-between gap-4 p-6 text-left group">
         <div className="flex items-start gap-4 flex-grow">
-          <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${colors.bg.replace('bg-', 'bg-').replace('-50', '-500')}`} />
+          <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${dotColor}`} />
           <h3 className="font-heading font-bold text-dark-gray text-base leading-relaxed group-hover:text-trust-blue transition-colors">
             {item.question}
           </h3>
@@ -80,15 +62,8 @@ function AccordionItem({ item, isOpen, onToggle, categoryId }: AccordionItemProp
         />
       </button>
 
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
+      {isOpen && (
+          <div className="overflow-hidden">
             <div className="px-6 pb-6 pl-14">
               <p className="text-dark-gray/70 leading-relaxed text-sm font-medium mb-4">{item.answer}</p>
               <div className="flex flex-wrap gap-2">
@@ -102,37 +77,39 @@ function AccordionItem({ item, isOpen, onToggle, categoryId }: AccordionItemProp
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }
 
-interface CategorySectionProps {
+function CategorySection({
+  category,
+  activeQuestionId,
+  onToggle,
+}: {
   category: QACategory;
   activeQuestionId: string | null;
   onToggle: (id: string) => void;
-}
-
-function CategorySection({ category, activeQuestionId, onToggle }: CategorySectionProps) {
-  const colors = CATEGORY_COLORS[category.id] ?? CATEGORY_COLORS.basics;
-  const totalQuestions = category.questions.length;
+}) {
+  const colors = CATEGORY_COLORS[category.id as keyof typeof CATEGORY_COLORS] ?? CATEGORY_COLORS.basics;
+  const iconColor = getIconColor(category.id);
 
   return (
     <div className="mb-16">
       <div className="flex items-center gap-4 mb-6">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colors.bg} ${colors.icon} border ${colors.border}`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colors.bg} ${iconColor} border ${colors.border}`}>
           {CATEGORY_ICONS[category.id]}
         </div>
         <div>
           <h2 className="text-2xl font-heading font-black text-trust-blue">{category.title}</h2>
-          <p className="text-dark-gray/40 text-sm font-medium">{category.description} · {totalQuestions} 个问题</p>
+          <p className="text-dark-gray/40 text-sm font-medium">{category.description} · {category.questions.length} 个问题</p>
         </div>
       </div>
 
       <div className="space-y-3">
         {category.questions.map((item) => (
+          // @ts-ignore
           <AccordionItem
             key={item.id}
             item={item}
@@ -174,24 +151,17 @@ export default function Encyclopedia() {
 
   return (
     <div className="bg-warm-white min-h-screen">
-      {/* Hero Banner */}
+      {/* Hero */}
       <section className="relative bg-gradient-to-b from-trust-blue to-trust-blue/90 pt-20 pb-24 overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-sun-yellow rounded-full blur-[120px]"></div>
+          <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-[100px]" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-sun-yellow rounded-full blur-[120px]" />
         </div>
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-10 font-medium transition-colors"
-          >
+          <Link to="/" className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-10 font-medium transition-colors">
             <ArrowLeft size={18} /> 返回首页
           </Link>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <div>
             <span className="inline-block px-4 py-1 rounded-full bg-white/10 text-white/80 text-xs font-bold uppercase tracking-widest mb-6 border border-white/10 backdrop-blur-md">
               探校百科
             </span>
@@ -202,11 +172,11 @@ export default function Encyclopedia() {
             <p className="text-white/60 text-base font-medium max-w-xl mx-auto">
               22 个核心问题，覆盖入门扫盲、流程材料、费用财务、理念匹配四大类
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Search Bar */}
+      {/* Search */}
       <div className="max-w-4xl mx-auto px-4 -mt-8 relative z-10">
         <div className="bg-white rounded-2xl shadow-xl shadow-trust-blue/10 border border-trust-blue/5 p-2">
           <div className="relative">
@@ -230,19 +200,14 @@ export default function Encyclopedia() {
         </div>
       </div>
 
-      {/* Content Area */}
+      {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-16">
         {searchQuery.trim() ? (
-          /* Search Results Mode */
           searchResults !== null && searchResults.length > 0 ? (
             <div>
               <div className="mb-8">
-                <h2 className="text-xl font-heading font-black text-trust-blue mb-1">
-                  搜索结果
-                </h2>
-                <p className="text-dark-gray/40 text-sm font-medium">
-                  找到 {searchResults.length} 个相关问题
-                </p>
+                <h2 className="text-xl font-heading font-black text-trust-blue mb-1">搜索结果</h2>
+                <p className="text-dark-gray/40 text-sm font-medium">找到 {searchResults.length} 个相关问题</p>
               </div>
               <div className="space-y-3">
                 {searchResults.map(({ category, item }) => (
@@ -266,18 +231,17 @@ export default function Encyclopedia() {
             </div>
           )
         ) : (
-          /* Browse Mode — All Categories */
           <>
-            {/* Stats Bar */}
             <div className="flex flex-wrap gap-3 mb-12">
               {qaCategories.map((cat) => {
-                const colors = CATEGORY_COLORS[cat.id] ?? CATEGORY_COLORS.basics;
+                const colors = CATEGORY_COLORS[cat.id as keyof typeof CATEGORY_COLORS] ?? CATEGORY_COLORS.basics;
+                const iconColor = getIconColor(cat.id);
                 return (
                   <div
                     key={cat.id}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold ${colors.bg} ${colors.text} border ${colors.border}`}
                   >
-                    {CATEGORY_ICONS[cat.id]}
+                    <span className={iconColor}>{CATEGORY_ICONS[cat.id]}</span>
                     <span>{cat.title}</span>
                     <span className="opacity-60">×{cat.questions.length}</span>
                   </div>
@@ -288,7 +252,6 @@ export default function Encyclopedia() {
               </div>
             </div>
 
-            {/* Categories */}
             {qaCategories.map((category) => (
               <CategorySection
                 key={category.id}
@@ -304,9 +267,7 @@ export default function Encyclopedia() {
       {/* Bottom CTA */}
       <div className="max-w-4xl mx-auto px-4 pb-24">
         <div className="bg-gradient-to-br from-sun-yellow/10 to-sun-yellow/5 rounded-[40px] p-10 md:p-14 border border-sun-yellow/20 text-center">
-          <h3 className="text-2xl font-heading font-black text-trust-blue mb-3">
-            你的问题还没有被解答？
-          </h3>
+          <h3 className="text-2xl font-heading font-black text-trust-blue mb-3">你的问题还没有被解答？</h3>
           <p className="text-dark-gray/50 font-medium mb-8">
             欢迎浏览真实家长的探园笔记，或直接联系目标园所
           </p>
