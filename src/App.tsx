@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import SchoolDetail from './pages/SchoolDetail';
 import Notes from './pages/Notes';
+import Encyclopedia from './pages/Encyclopedia';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/school/:id" element={<SchoolDetail />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/encyclopedia" element={<Encyclopedia />} />
           </Routes>
         </main>
         <Footer />
